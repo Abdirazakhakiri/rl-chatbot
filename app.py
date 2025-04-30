@@ -1,22 +1,29 @@
 
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route("/", methods=["GET"])
+def home():
+    return "Reinforcement learning chatbot is live."
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
     try:
         data = request.get_json(force=True)
-        message = data.get("query", "")  # safer access
-
-        print("User said:", message)
-
-        if not message:
-            return jsonify({"chatbot_response": "Hmm, I didn't catch that. Can you rephrase?"})
+        message = data.get("query", "")
+        print("Received:", message)
 
         response = {
-            "chatbot_response": f"You asked: {message}"
+            "chatbot_response": f"You asked: {message}. Let me help you out."
         }
 
         return jsonify(response)
 
     except Exception as e:
-        print("Error:", str(e))
-        return jsonify({"chatbot_response": "Oops, something went wrong. Try again."}), 500
+        print("Webhook error:", e)
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
