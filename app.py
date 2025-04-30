@@ -11,26 +11,27 @@ def home():
 def webhook():
     try:
         data = request.get_json(force=True)
-        message = data.get("query", "I didn't get that.")
-        print("Received message:", message)
+        message = data.get("query", "").lower()
 
-        # Smarter AI-style response
-        if "price" in message.lower():
-            reply = "Our service starts at $3,000. Want a breakdown?"
-        elif "how" in message.lower():
-            reply = "We run Facebook ads + DMs + a sales funnel that converts."
+        print("Received:", message)
+
+        if not message:
+            return jsonify({"chatbot_response": "Sorry, I didn't catch that. Can you rephrase?"})
+
+        if "price" in message or "$" in message:
+            response_text = "We focus on results first. Let’s talk about what you need."
+        elif "help" in message or "start" in message:
+            response_text = "Sure! Just tell me what you're looking for and I’ll guide you."
+        elif "how" in message:
+            response_text = "Here’s how it works: we get leads to come to you. Want in?"
         else:
-            reply = f"Good question. Here's what I think: {message}"
+            response_text = f"You said: {message}"
 
-        response = {
-            "chatbot_response": reply
-        }
-
-        return jsonify(response)
+        return jsonify({"chatbot_response": response_text})
 
     except Exception as e:
-        print("Webhook error:", e)
-        return jsonify({"error": str(e)}), 500
+        print("Error:", str(e))
+        return jsonify({"chatbot_response": "Oops, something went wrong. Please try again later."}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
